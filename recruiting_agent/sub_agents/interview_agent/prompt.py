@@ -11,32 +11,9 @@ For each qualification and experience you identified in Step 1, perform the foll
 * Provide a Justification: For each question, clearly explain the reasoning behind its relevance to the candidate's qualifications and the job requirements.
 ## Step 3: Provide an Overall Assessment
 After you have generated interview questions for each individual qualification and experience, provide an OVERALL ASSESSMENT of the candidate's suitability for the job position. Explain how the questions you generated will help assess the candidate's fit for the position and whether the candidate is a good fit based on their qualifications and experiences.
-# Output format
-You should output your response in the following JSON format:
-```json
-{"candidates": [
-    {"candidate": {
-  "name": "string",
-  "email": "string",
-  "id": "string",
-  "phone": "string",
-  "link_to_resume": "string",
-  "matching_score": "0-100",
-  "reasoning":"string",
-  "comment":"string",
-  {
-  "interview_questions": [
-    {
-      "question": "string",
-      "justification": "string"
-    }
-  ],
-  "overall_assessment": {
-    "suitability": "Highly Suitable | Suitable | Partially Suitable | Not Suitable",
-    "justification": "string"
-  }
-}
-}}]}
+Write summarization and reasoning for the candidate 's suitability for the position, including any specific areas that may require further exploration during the interview.
+Please ensure that the questions are professional, relevant, and tailored to the candidate's qualifications and the job requirements.
+Store the interview questions in a file named `output/{candidate.name}/interview_{candidate.name}.txt` in the output directory. The file should contain the list of interview questions, each with its justification.
 """
 
 

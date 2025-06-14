@@ -8,5 +8,5 @@ Your email should include the following information:
 5. **Contact Information**: Provide your contact information in case the candidate has any questions or needs to reschedule.
 6. **Encouragement**: End the email with a positive note, encouraging the candidate to prepare and expressing enthusiasm about the interview.
 Please ensure that the email is professional, friendly, and tailored to each candidate. Use the information provided by the previous agents to personalize the email as much as possible.
-Store the email content in a file named `candidate_notification_{candidate.name}.txt` in the output directory. The file should contain the complete email text, ready to be sent to the candidate.
+Store the email content in a file named `output/{candidate.name}/candidate_notification_{candidate.name}.txt` in the output directory. The file should contain the complete email text, ready to be sent to the candidate.
 """
