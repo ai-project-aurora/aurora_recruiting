@@ -21,6 +21,7 @@ import sys
 
 from .sub_agents.candidate_agent.agent import candidate_agent
 from .sub_agents.crewai_tool_agent.agent import writer_agent
+from .sub_agents.requirements_agent.agent import requirements_agent
 from .sub_agents.skill_extractor.agent import skill_extractor
 
 sys.path.append("..")
@@ -29,11 +30,13 @@ sys.path.append("..")
 orchestrator = SequentialAgent(
     name='orchestrator',
     description=(
-        'Greet the user and ask them to provide requirements for the candidate.'
-        ' The orchestrator will then delegate the task to the candidate agent, which will search for relevant information in the CV pool set data store.'
-        'Next, the skill extractor will extract skills for each candidate from the candidate\'s CV using the datastore.'
+        'Greet the user and ask them to provide a position they are hiring for.'
+        ' The orchestrator will then delegate the task to the requirements_agent, to fulfill the requirements. '
+        ' Skill_extractor will use datastore to extract skills from the cvs of candidates.'
+        'Candidate_agent will analyze the skills and qualifications of candidates based on the requirements provided by the user and select the best candidates.'
+        'Writer_agent will document the output of the candidate_agent and skill_extractor.'
     ),
-    sub_agents=[skill_extractor,candidate_agent, writer_agent],
+    sub_agents=[requirements_agent, skill_extractor,candidate_agent, writer_agent],
 )
 
 root_agent = orchestrator
