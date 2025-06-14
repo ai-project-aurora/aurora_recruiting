@@ -22,6 +22,7 @@ requirements_agent = Agent(
     # callbacks: Allow for you to run functions at certain points in
     # the agent's execution cycle. In this example, you will log the
     # request to the agent and its response.
+    output_key="requirements_output",
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
     tools=[google_search]

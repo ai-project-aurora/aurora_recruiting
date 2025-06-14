@@ -20,7 +20,10 @@ from google.adk.agents import SequentialAgent
 import sys
 
 from .sub_agents.candidate_agent.agent import candidate_agent
+from .sub_agents.candidate_notification_agent import candidate_notification_agent
+from .sub_agents.candidate_selector_agent import candidate_selector_agent
 from .sub_agents.crewai_tool_agent.agent import writer_agent
+from .sub_agents.interview_agent.agent import interview_agent
 from .sub_agents.requirements_agent.agent import requirements_agent
 from .sub_agents.skill_extractor.agent import skill_extractor
 
@@ -34,9 +37,11 @@ orchestrator = SequentialAgent(
         ' The orchestrator will then delegate the task to the requirements_agent, to fulfill the requirements. '
         ' Skill_extractor will use datastore to extract skills from the cvs of candidates.'
         'Candidate_agent will analyze the skills and qualifications of candidates based on the requirements provided by the user and select the best candidates.'
+        'Candidate_selector_agent will list top candidates ordered by their score and ask the user the number or names of candidates to process.'
+        'Interview_agent will conduct interviews with the selected candidates and ask them questions based on the requirements provided by the user.'
         'Writer_agent will document the output of the candidate_agent and skill_extractor.'
     ),
-    sub_agents=[requirements_agent, skill_extractor,candidate_agent, writer_agent],
+    sub_agents=[requirements_agent, skill_extractor,candidate_agent, candidate_selector_agent, interview_agent, writer_agent, candidate_notification_agent],
 )
 
 root_agent = orchestrator

@@ -1,6 +1,7 @@
 import sys
 
 from . import prompt
+from ...state_writer import save_to_state
 
 sys.path.append("..")
 from callback_logging import log_query_to_model, log_model_response
