@@ -10,6 +10,7 @@ This repository contains a set of agents that work together to facilitate the re
 - **Recruiter Agent**: Handles job postings, manages applications, and communicates with candidates.
 - **Analytics Agent**: Provides insights and analytics on job postings, candidate applications, and interview outcomes.
 - **Calendar Agent**: Integrates with calendar services to manage interview schedules and reminders.
+- **Salaries Agent**: Provides insights into salary expectations based on market data and candidate profiles.
 - **Notification Agent**: Sends notifications to candidates and recruiters about application status, interview schedules, etc.
 # Features
 - **Job Posting**: Recruiters can post job openings with detailed descriptions.
