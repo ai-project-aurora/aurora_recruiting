@@ -3,13 +3,11 @@ import os
 from dotenv import load_dotenv
 
 from . import prompt
-from ...state_writer import save_to_state
 
 sys.path.append("..")
 from callback_logging import log_query_to_model, log_model_response
 
 from google.adk import Agent
-# from agents.tools.retrieval import VertexAISearchTool
 from google.adk.tools import VertexAiSearchTool
 
 # The data_store_id path follows the same format as the datstore parameter
@@ -43,5 +41,5 @@ skill_extractor = Agent(
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
     # Add the vertexai_search_tool tool to perform search on your data.
-    tools=[datastore1]
+    tools=[datastore1, datastore2, datastore3],
 )

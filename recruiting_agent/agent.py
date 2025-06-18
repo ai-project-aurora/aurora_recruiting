@@ -19,15 +19,15 @@ from google.adk.agents import SequentialAgent
 
 import sys
 
-from .sub_agents.candidate_agent.agent import candidate_agent
-from .sub_agents.candidate_notification_agent import candidate_notification_agent
-from .sub_agents.candidate_selector_agent import candidate_selector_agent
-from .sub_agents.compliance_agent import compliance_agent
-from .sub_agents.crewai_tool_agent.agent import writer_agent
-from .sub_agents.interview_agent.agent import interview_agent
-from .sub_agents.requirements_agent.agent import requirements_agent
-from .sub_agents.salary_agent import salary_agent
-from .sub_agents.skill_extractor.agent import skill_extractor
+from sub_agents.candidate_agent.agent import candidate_agent
+from sub_agents.candidate_notification_agent import candidate_notification_agent
+from sub_agents.candidate_selector_agent import candidate_selector_agent
+from sub_agents.compliance_agent import compliance_agent
+from sub_agents.crewai_tool_agent.agent import writer_agent
+from sub_agents.interview_agent.agent import interview_agent
+from sub_agents.requirements_agent.agent import requirements_agent
+from sub_agents.salary_agent import salary_agent
+from sub_agents.skill_extractor.agent import skill_extractor
 
 sys.path.append("..")
 
