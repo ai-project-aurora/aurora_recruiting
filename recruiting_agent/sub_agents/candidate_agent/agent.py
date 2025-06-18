@@ -11,7 +11,7 @@ candidate_agent = Agent(
     # A unique name for the agent.
     name="candidate_agent",
     # The Large Language Model (LLM) that agent will use.
-    model="gemini-2.0-flash-001",
+    model="gemini-2.0-flash",
     # A short description of the agent's purpose, so other agents
     # in a multi-agent system know when to call it.
     description="Use the information provided by the previous agents to match the skills and experiences to the relevant position",

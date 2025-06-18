@@ -1,4 +1,6 @@
 import sys
+import os
+from dotenv import load_dotenv
 
 from . import prompt
 from ...state_writer import save_to_state
@@ -15,18 +17,23 @@ from google.adk.tools import VertexAiSearchTool
 # https://googleapis.github.io/python-genai/genai.html#genai.types.VertexAISearch
 
 # Create your vertexai_search_tool and update its path below
-vertexai_search_tool = VertexAiSearchTool(
-    data_store_id="projects/cap-global-genai-cx-sandbox/locations/global/collections/default_collection/dataStores/aurora-dataset01-unstructured_1749885872504"
-    # data_store_id="projects/hacker2025-team-162-dev/locations/global/collections/default_collection/dataStores/dataset01-candidate-cvs-pdf_1749831357277"
-
+datastore1 = VertexAiSearchTool(
+    data_store_id="projects/hacker2025-team-182-dev/locations/global/collections/default_collection/dataStores/aurora-dataset01-unstructured_1750257838490"
 )
-
+datastore2 = VertexAiSearchTool(
+    data_store_id="projects/hacker2025-team-182-dev/locations/global/collections/default_collection/dataStores/aurora-dataset02-unstructured_1750258103806"
+)
+datastore3 = VertexAiSearchTool(
+    data_store_id="projects/hacker2025-team-182-dev/locations/global/collections/default_collection/dataStores/aurora-dataset01-unstructured_1750257838490"
+)
+load_dotenv()
+model_name = os.getenv("MODEL")
 
 skill_extractor = Agent(
     # A unique name for the agent.
     name="skill_extractor",
     # The Large Language Model (LLM) that agent will use.
-    model="gemini-2.0-flash-001",
+    model=model_name,
     # A short description of the agent's purpose, so other agents
     # in a multi-agent system know when to call it.
     description="Use vertexai_search_tool to access the datastore containing the candidates CVs. Extract skills for each candidate from the candidate's CV using datastore",
@@ -36,5 +43,5 @@ skill_extractor = Agent(
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
     # Add the vertexai_search_tool tool to perform search on your data.
-    tools=[vertexai_search_tool]
+    tools=[datastore1]
 )
