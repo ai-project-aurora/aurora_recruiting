@@ -35,3 +35,15 @@ This repository contains a set of agents that work together to facilitate the re
    ```bash
    adk web
    ```
+
+## Cloud Function
+Cloud Function is used to trigger the agents when some events have been written to Firestore (usually using the Web UI).
+
+0. Deploy to firestore
+   ```
+   npm install -g firebase-tools
+   ```
+1. Deploy to firestore
+   ```
+   firestore deploy
+   ```
