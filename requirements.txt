@@ -1,5 +1,6 @@
-scikit-learn==1.6.1
-langchain-community==0.3.20
-wikipedia==1.4.0
-crewai-tools==0.38.1
-dateparser==1.2.1
+scikit-learn
+langchain-community
+wikipedia
+crewai-tools
+dateparser
+google-adk
