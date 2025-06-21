@@ -233,6 +233,8 @@ orchestrator = SequentialAgent(
     name='orchestrator',
     description=(
         'Greet the user and ask them to provide a position they are hiring for.'
+        'Ask user to upload candidate resumes or use external datastores. '
+        'Delegate to other agents dependent on their tasks. '
         ' The orchestrator will then delegate the task to the requirements_agent, to fulfill the requirements. '
         ' Skill_extractor will use datastore to extract skills from the cvs of candidates.'
         'Candidate_agent will analyze the skills and qualifications of candidates based on the requirements provided by the user and select the best candidates.'
