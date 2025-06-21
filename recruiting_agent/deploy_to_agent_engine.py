@@ -5,12 +5,13 @@ import os
 
 from dotenv import load_dotenv
 
-from agent import orchestrator
 
 # 1. Load environment variables from the agent directory's .env file
 load_dotenv()
 model_name = os.getenv("MODEL", "gemini-2.5-flash")
-os.environ["DEPLOY"] = "true"
+os.environ["DEPLOY"] = 'True'
+
+from agent import orchestrator
 
 vertexai.init(
     project=os.getenv("GOOGLE_CLOUD_PROJECT"),
@@ -26,7 +27,7 @@ remote_app = agent_engines.create(
         "scikit-learn",
         "langchain-community",
         "wikipedia",
-        "crewai-tools",
+        "crewai_tools"
         "dateparser",
         "pydantic",
         "cloudpickle",

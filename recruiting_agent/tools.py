@@ -4,14 +4,15 @@ import os
 
 from google.adk.agents.callback_context import CallbackContext
 from google.adk.models import LlmResponse, LlmRequest
-from google.adk.tools.crewai_tool import CrewaiTool
-from crewai_tools import FileWriterTool
 from typing import List
 from google.adk.tools.tool_context import ToolContext
 from dotenv import load_dotenv
+from google.cloud import firestore
 
 load_dotenv()
-
+deploy=os.getenv("DEPLOY", 'False')
+from google.adk.tools.crewai_tool import CrewaiTool
+from crewai_tools import FileWriterTool
 
 def save_to_state(
         tool_context: ToolContext,
@@ -30,10 +31,22 @@ def save_to_state(
     return {"status": "success"}
 
 
-deploy=os.getenv("DEPLOY", "false"),
+# Initialize Firestore client
+db = firestore.Client()
+
+def store_candidate(candidate_id:str, data: dict) -> dict[str, str]:
+    # Reference to the collection and document
+    try:
+        doc_ref = db.collection('wizard').document(candidate_id)
+    # Set data in Firestore
+        doc_ref.set(data)
+        print(f"Candidate {candidate_id} data stored.")
+        return {"status": "success " + candidate_id}
+    except Exception as e:
+        print(f"Error storing candidate {candidate_id} data: {e}")
+        return {"status": "error"}
 
 def write_to_file(file_name):
-    if deploy != "true":
         return CrewaiTool(
             name=file_name,
             description=(
@@ -43,6 +56,9 @@ def write_to_file(file_name):
             ),
             tool=FileWriterTool()
         )
+
+
+
 
 def log_query_to_model(callback_context: CallbackContext, llm_request: LlmRequest):
     cloud_logging_client = google.cloud.logging.Client()

@@ -1,3 +1,4 @@
+import os
 from google.adk.agents import SequentialAgent, LoopAgent, ParallelAgent
 
 from google.adk.tools import VertexAiSearchTool
@@ -6,13 +7,20 @@ from google.adk.tools import google_search  # The Google Search tool
 from google.genai import types
 from google.adk import Agent
 from dotenv import load_dotenv
-from prompt import *
-from tools import *
 # 1. Load environment variables from the agent directory's .env file
 load_dotenv()
 model_name = os.getenv("MODEL", "gemini-2.5-flash")
 project_name = os.getenv("GOOGLE_CLOUD_PROJECT", "hacker2025-team-182-dev")
-deploy=os.getenv("DEPLOY", "false"),
+deploy=os.getenv("DEPLOY", 'False')
+print("deploy: ", deploy)
+if deploy != 'True':
+    print("Running the agent locally")
+    from .prompt import *
+    from .tools import *
+else:
+    print("Deploying the agent to Agent Engine")
+    from prompt import *
+    from tools import *
 
 datastorePath = "projects/" + project_name + "/locations/global/collections/default_collection/dataStores/"
 print("datastoreIdPath: ", datastorePath)
@@ -211,6 +219,16 @@ requirements_agent = Agent(
     tools=[google_search]
 )
 
+documentation_agent = Agent(
+    name="documentation_agent",
+    model=model_name,
+    description="Use the information provided by the previous agents to store the requirements, skills, and interview questions in a structured format in the firestore using the Firestore tool.",
+    instruction=DOCUMENTATION_AGENT_PROMPT,
+    before_model_callback=log_query_to_model,
+    after_model_callback=log_model_response,
+    tools=[store_candidate]
+)
+
 orchestrator = SequentialAgent(
     name='orchestrator',
     description=(
@@ -229,7 +247,8 @@ orchestrator = SequentialAgent(
         interview_agent,
         compliance_agent,
         salary_agent,
-        candidate_notification_agent
+        candidate_notification_agent,
+        documentation_agent
     ]
 )
 
