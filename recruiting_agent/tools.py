@@ -7,7 +7,7 @@ from google.adk.models import LlmResponse, LlmRequest
 from typing import List
 from google.adk.tools.tool_context import ToolContext
 from dotenv import load_dotenv
-from google.cloud import firestore
+from google.cloud import firestore, storage
 
 load_dotenv()
 deploy=os.getenv("DEPLOY", 'False')
@@ -33,6 +33,24 @@ def save_to_state(
 
 # Initialize Firestore client
 db = firestore.Client()
+
+def upload_to_gcs(file_name: str, data: str) -> dict[str, str]:
+    """
+    Uploads candidate data to gcs.
+    Use candidate_name and candidate_data_type as path to file in the storage
+    :param candidate_name - name of the candidate
+    :param candidate_data_type - one of compliance, salary, skills, interview, notification
+
+    """
+    bucket_name = os.getenv("OUTPUT_BUCKET_NAME", "aurora-output-bucket")
+    try:
+        client = storage.Client()
+        bucket = client.bucket(bucket_name)
+        blob = bucket.blob(file_name)
+        blob.upload_from_string(data.encode("utf-8"))
+        return {"status": "success", "path": f"gs://{bucket_name}/{file_name}"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 def store_candidate(candidate_id:str, data: dict) -> dict[str, str]:
     # Reference to the collection and document

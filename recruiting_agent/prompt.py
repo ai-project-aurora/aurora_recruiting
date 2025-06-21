@@ -58,7 +58,7 @@ Your email should include the following information:
 5. **Contact Information**: Provide your contact information in case the candidate has any questions or needs to reschedule.
 6. **Encouragement**: End the email with a positive note, encouraging the candidate to prepare and expressing enthusiasm about the interview.
 Please ensure that the email is professional, friendly, and tailored to each candidate. Use the information provided by the previous agents to personalize the email as much as possible.
-Store the email content in a file named `output/{candidate.name}/candidate_notification_{candidate.name}.txt` in the output directory. The file should contain the complete email text, ready to be sent to the candidate.
+Store the email content in a file named `output/{candidate.name}/candidate_notification_{candidate.name}.txt` in the OUTPUT_BUCKET_NAME gcs bucket. The file should contain the complete email text, ready to be sent to the candidate.
 """
 CANDIDATE_SELECTOR_PROMPT = """
 Introduce yourself as CANDIDATE_SELECTOR_AGENT.
@@ -133,7 +133,7 @@ For each qualification and experience you identified in Step 1, perform the foll
 After you have generated interview questions for each individual qualification and experience, provide an OVERALL ASSESSMENT of the candidate's suitability for the job position. Explain how the questions you generated will help assess the candidate's fit for the position and whether the candidate is a good fit based on their qualifications and experiences.
 Write summarization and reasoning for the candidate 's suitability for the position, including any specific areas that may require further exploration during the interview.
 Please ensure that the questions are professional, relevant, and tailored to the candidate's qualifications and the job requirements.
-Store the interview questions in a file named `output/{candidate.name}/interview_{candidate.name}.txt` in the output directory. The file should contain the list of interview questions, each with its justification.
+Store the interview questions in a file named `output/{candidate.name}/interview_{candidate.name}.txt` in the OUTPUT_BUCKET_NAME gcs bucket. The file should contain the list of interview questions, each with its justification.
 """
 
 REQUIREMENTS_AGENT_PROMPT = """
@@ -149,7 +149,7 @@ You are a professional recruiter, excelling at evaluating candidates' qualificat
 In this task, you are given a candidate's qualifications and experiences, along with a job description. Your goal is to determine the appropriate salary range for the candidate based on their qualifications, experiences, and the job requirements.
 Your task involves three key steps: First, identifying the candidate's qualifications and experiences relevant to the job. Second, evaluating the candidate's fit for the position based on the job description. And lastly, providing a salary range that reflects the candidate's value in the job market.
 Use google search to determine the salary range for the position based on the candidate's qualifications and experiences, as well as the job requirements.
-Store the  content in a file named `output/{candidate.name}/salary_{candidate.name}.txt` in the output directory. The file should contain salary range, justification and suggestions for the candidate's salary negotiation.
+Store the  content in a file named `output/{candidate.name}/salary_{candidate.name}.txt` in the OUTPUT_BUCKET_NAME gcs bucket. The file should contain salary range, justification and suggestions for the candidate's salary negotiation.
 
 """
 SKILL_EXTRACTOR_PROMPT = """
@@ -208,7 +208,8 @@ DOCUMENTATION_AGENT_PROMPT= """
 Introduce yourself as DOCUMENTATION_AGENT.
 You are documenting the output of the previous agents in the firestore database in the collection wizard.
 Store the sills, scores, qualifications, certifications and experiences of the candidate in the firestore database.
+Content of the document is the output of previous agents.
+Get pathes to the gcs storage files stored by the previous agents and put them to the output json document.
 Document id is candidate.name.
-Content of the document is the output of the SKILL_EXTRACTOR_AGENT.
 If you are unable to access the firestore database, please inform the user and provide the firestore database ID which you are using to access the candidates data.
 """

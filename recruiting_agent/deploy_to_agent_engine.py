@@ -31,6 +31,8 @@ remote_app = agent_engines.create(
         "dateparser",
         "pydantic",
         "cloudpickle",
+        "google-cloud-firestore",
+        "google-cloud-storage"
     ],
     extra_packages=[
         "agent.py",

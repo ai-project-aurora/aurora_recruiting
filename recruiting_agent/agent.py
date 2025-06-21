@@ -133,7 +133,7 @@ compliance_agent = Agent(
     output_key="candidate_output",
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
-    tools=[write_to_file("compliance_file_writer_tool")]
+    tools=[upload_to_gcs]
 )
 writer_agent = Agent(
     name="writer_agent",
@@ -146,7 +146,7 @@ writer_agent = Agent(
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
     # Add the CrewAI FileWriterTool below
-    tools = [write_to_file("file_writer_tool")]
+    tools = [upload_to_gcs]
 
 )
 interview_agent = Agent(
@@ -164,7 +164,7 @@ interview_agent = Agent(
     # Callbacks to log the request to the agent and its response.
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
-    tools = [write_to_file("interview_file_writer_tool")]
+    tools = [upload_to_gcs]
 )
 candidate_notification_agent = Agent(
     # A unique name for the agent.
@@ -180,7 +180,7 @@ candidate_notification_agent = Agent(
     output_key="candidate_output",
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
-    tools = [write_to_file("notification_file_writer_tool")]
+    tools = [upload_to_gcs]
 )
 
 salary_agent = Agent(
@@ -197,7 +197,7 @@ salary_agent = Agent(
     output_key="candidate_output",
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
-    tools=[write_to_file("salary_file_writer_tool")]
+    tools=[upload_to_gcs]
 )
 
 requirements_agent = Agent(
