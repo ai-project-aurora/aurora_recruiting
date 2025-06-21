@@ -3,4 +3,5 @@ langchain-community
 wikipedia
 crewai-tools
 dateparser
-google-adk
+google-cloud-aiplatform[adk,agent_engines]
+deprecated
