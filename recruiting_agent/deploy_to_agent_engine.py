@@ -33,5 +33,7 @@ remote_app = agent_engines.create(
     ],
     extra_packages=[
         "agent.py",
+        "tools.py",
+        "prompt.py",
     ]
 )
