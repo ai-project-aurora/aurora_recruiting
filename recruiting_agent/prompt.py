@@ -1,4 +1,4 @@
-INIT_AGENT_PROMPT="""
+INIT_AGENT_PROMPT = """
 Introduce yourself in each message as INITIALIZATION_AGENT.
 You are documenting the user request and create a basic document structure in the firestore.
 Using wizard_tool create document with the session id and put there a document with the following structure.
@@ -19,7 +19,7 @@ with:
 - source as internal if datastore document is used, set source as additional if uploaded file is used.
 
 """
-USER_UPLOADS_AGENT_PROMPT="""
+USER_UPLOADS_AGENT_PROMPT = """
 Introduce yourself in each message as USER_UPLOADS_AGENT.
 Use this agent if request contains external sources: True. Otherwise skip. Inform user about skipping of the agent.
 
@@ -135,7 +135,7 @@ Evaluate the candidate selection and ranking process for fairness and ethical st
 - Equal treatment of candidates regardless
 For each candidate store the report in the file `output/{candidate.name}/compliance_{candidate.name}.txt` 
 """
-WRITE_AGENT="""
+WRITE_AGENT = """
 Introduce yourself in each message as WRITE_AGENT.
 You are an agent documenting intermediate steps in a process.
 Create an output directory to store the responses of the previous agents.
@@ -183,7 +183,7 @@ Store the  content in a file named `output/{candidate.name}/salary_{candidate.na
 DATASTORE_PROMPT = """
 Introduce yourself in each message as DATASTORE_AGENT.
 Use this agent if request contains use internal sources: True. Otherwise skip. Inform user about skipping.
-Use vertexai_search_tool available for you to access the datastore containing the candidates CVs.
+Use the data store available for you to access the datastore containing the candidates CVs.
 If you don't have access to the tools please inform the user. Please provide the data store IDs which you are using to access the candidates CVs.
 Use datastore to access the candidates CVs.
 If you are unable to access the datastore, please inform the user and provide the data store IDs which you are using to access the candidates CVs.
@@ -237,7 +237,7 @@ You should output your response in the following JSON format:
 ```
 Make sure to include all the skills, qualifications, certifications and experiences from the candidate's resume.
 """
-DOCUMENTATION_AGENT_PROMPT= """
+DOCUMENTATION_AGENT_PROMPT = """
 Introduce yourself in each message as DOCUMENTATION_AGENT.
 You are documenting the output of the previous agents in the firestore database in the collection output.
 Store the sills, scores, qualifications, certifications and experiences of the candidate in the firestore database.
@@ -288,7 +288,7 @@ Store data in the following JSON format:
 ```
 """
 
-WIZARD_AGENT_PROMPT= """
+WIZARD_AGENT_PROMPT = """
 Introduce yourself in each message as WIZARD_AGENT.
 You are documenting the output of the previous agents in the firestore database in the collection wizard.
 Content of the document is the output of previous agents. Use the document created by the initialization_agent
@@ -329,4 +329,3 @@ export interface WizardRun {
 </typescript>
 ```
 """
-

@@ -7,13 +7,14 @@ from google.adk.tools import google_search  # The Google Search tool
 from google.genai import types
 from google.adk import Agent
 from dotenv import load_dotenv
+
 # 1. Load environment variables from the agent directory's .env file
 load_dotenv()
 model_name = os.getenv("MODEL", "gemini-2.5-flash")
 project_name = os.getenv("GOOGLE_CLOUD_PROJECT", "hacker2025-team-182-dev")
-deploy=os.getenv("DEPLOY", 'False')
+deploy = os.getenv("DEPLOY", "False")
 print("deploy: ", deploy)
-if deploy != 'True':
+if deploy != "True":
     print("Running the agent locally")
     from .prompt import *
     from .tools import *
@@ -22,13 +23,23 @@ else:
     from prompt import *
     from tools import *
 
-datastorePath = "projects/" + project_name + "/locations/global/collections/default_collection/dataStores/"
+datastorePath = (
+    "projects/"
+    + project_name
+    + "/locations/global/collections/default_collection/dataStores/"
+)
+
 print("datastoreIdPath: ", datastorePath)
+
 vertexai_search_tool = VertexAiSearchTool(
     data_store_id=datastorePath + "aurora-dataset01-unstructured_1750257838490"
 )
-vertexai_search_tool2 = VertexAiSearchTool(data_store_id=datastorePath+"aurora-dataset02-unstructured_1750258103806")
-vertexai_search_tool3 = VertexAiSearchTool(data_store_id=datastorePath+"aurora-dataset03-unstructured_1750258161445")
+vertexai_search_tool2 = VertexAiSearchTool(
+    data_store_id=datastorePath + "aurora-dataset02-unstructured_1750258103806"
+)
+vertexai_search_tool3 = VertexAiSearchTool(
+    data_store_id=datastorePath + "aurora-dataset03-unstructured_1750258161445"
+)
 
 datastore_agent1 = Agent(
     # A unique name for the agent.
@@ -37,13 +48,12 @@ datastore_agent1 = Agent(
     model=model_name,
     # A short description of the agent's purpose, so other agents
     # in a multi-agent system know when to call it.
-    description="Use vertexai_search_tool available for you  to access the datastore containing the candidates CVs. ",
+    description="Use vertexai_search_tool available for you to access the datastore containing the candidates CVs.",
     # Instructions to set the agent's behavior.
     instruction=DATASTORE_PROMPT,
     # Callbacks to log the request to the agent and its response.
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
-
     tools=[vertexai_search_tool],
 )
 
@@ -54,13 +64,12 @@ datastore_agent2 = Agent(
     model=model_name,
     # A short description of the agent's purpose, so other agents
     # in a multi-agent system know when to call it.
-    description="Use vertexai_search_tool available for you  to access the datastore containing the candidates CVs. ",
+    description="Use vertexai_search_tool2 available for you  to access the datastore containing the candidates CVs. ",
     # Instructions to set the agent's behavior.
     instruction=DATASTORE_PROMPT,
     # Callbacks to log the request to the agent and its response.
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
-
     tools=[vertexai_search_tool2],
 )
 
@@ -71,13 +80,13 @@ datastore_agent3 = Agent(
     model=model_name,
     # A short description of the agent's purpose, so other agents
     # in a multi-agent system know when to call it.
-    description="Use vertexai_search_tool available for you  to access the datastore containing the candidates CVs. ",
+    description="Use vertexai_search_tool3 available for you to access the datastore containing the candidates CVs.",
     # Instructions to set the agent's behavior.
     instruction=DATASTORE_PROMPT,
     # Callbacks to log the request to the agent and its response.
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
-    tools=[vertexai_search_tool],
+    tools=[vertexai_search_tool3],
 )
 
 skill_extractor = Agent(
@@ -102,7 +111,7 @@ initialization_agent = Agent(
     instruction=INIT_AGENT_PROMPT,
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
-    tools=[store_wizard]
+    tools=[store_wizard],
 )
 
 user_uploads_agent = Agent(
@@ -112,7 +121,7 @@ user_uploads_agent = Agent(
     instruction=USER_UPLOADS_AGENT_PROMPT,
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
-    tools=[read_from_gcs]
+    tools=[read_from_gcs],
 )
 
 data_retriever_team = ParallelAgent(
@@ -121,8 +130,8 @@ data_retriever_team = ParallelAgent(
         datastore_agent1,
         datastore_agent2,
         datastore_agent3,
-        user_uploads_agent
-    ]
+        user_uploads_agent,
+    ],
 )
 
 candidate_agent = Agent(
@@ -171,21 +180,18 @@ compliance_agent = Agent(
     output_key="candidate_output",
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
-    tools=[upload_to_gcs]
+    tools=[upload_to_gcs],
 )
 writer_agent = Agent(
     name="writer_agent",
     model=model_name,
     description=WRITE_AGENT,
     instruction="",
-    generate_content_config=types.GenerateContentConfig(
-        temperature=0
-    ),
+    generate_content_config=types.GenerateContentConfig(temperature=0),
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
     # Add the CrewAI FileWriterTool below
-    tools = [upload_to_gcs]
-
+    tools=[upload_to_gcs],
 )
 interview_agent = Agent(
     # A unique name for the agent.
@@ -198,11 +204,10 @@ interview_agent = Agent(
     # Instructions to set the agent's behavior.
     instruction=INTERVIEW_AGENT_PROMPT,
     output_key="interview_output",
-
     # Callbacks to log the request to the agent and its response.
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
-    tools = [upload_to_gcs]
+    tools=[upload_to_gcs],
 )
 candidate_notification_agent = Agent(
     # A unique name for the agent.
@@ -218,7 +223,7 @@ candidate_notification_agent = Agent(
     output_key="candidate_output",
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
-    tools = [upload_to_gcs]
+    tools=[upload_to_gcs],
 )
 
 salary_agent = Agent(
@@ -235,7 +240,7 @@ salary_agent = Agent(
     output_key="candidate_output",
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
-    tools=[upload_to_gcs]
+    tools=[upload_to_gcs],
 )
 
 requirements_agent = Agent(
@@ -254,15 +259,11 @@ requirements_agent = Agent(
     output_key="requirements_output",
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
-    tools=[google_search]
+    tools=[google_search],
 )
 
 initialization_team = ParallelAgent(
-    name="initialization_team",
-    sub_agents = [
-        initialization_agent,
-        requirements_agent
-    ]
+    name="initialization_team", sub_agents=[initialization_agent, requirements_agent]
 )
 
 documentation_agent = Agent(
@@ -272,7 +273,7 @@ documentation_agent = Agent(
     instruction=DOCUMENTATION_AGENT_PROMPT,
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
-    tools=[store_candidate]
+    tools=[store_candidate],
 )
 
 wizard_agent = Agent(
@@ -282,22 +283,23 @@ wizard_agent = Agent(
     instruction=WIZARD_AGENT_PROMPT,
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
-    tools=[store_wizard]
+    tools=[store_wizard],
 )
 
 orchestrator = SequentialAgent(
-    name='orchestrator',
+    name="orchestrator",
     description=(
-        'Greet the user and ask them to provide a position they are hiring for.'
-        'Ask user to upload candidate resumes or use external datastores. '
-        'Delegate to other agents dependent on their tasks. '
-        ' The orchestrator will then delegate the task to the requirements_agent, to fulfill the requirements. '
-        ' Skill_extractor will use datastore to extract skills from the cvs of candidates.'
-        'Candidate_agent will analyze the skills and qualifications of candidates based on the requirements provided by the user and select the best candidates.'
-        'Candidate_selector_agent will list top candidates ordered by their score and ask the user the number or names of candidates to process.'
-        'Wizard agent will store all matching candidates into the firestore wizard collection.'
-        'Interview_agent will conduct interviews with the selected candidates and ask them questions based on the requirements provided by the user.'
-        'Candidate_notification_agent will notify the candidates about the interview results and next steps.'),
+        "Greet the user and ask them to provide a position they are hiring for."
+        "Ask user to upload candidate resumes or use external datastores. "
+        "Delegate to other agents dependent on their tasks. "
+        " The orchestrator will then delegate the task to the requirements_agent, to fulfill the requirements. "
+        " Skill_extractor will use datastore to extract skills from the cvs of candidates."
+        "Candidate_agent will analyze the skills and qualifications of candidates based on the requirements provided by the user and select the best candidates."
+        "Candidate_selector_agent will list top candidates ordered by their score and ask the user the number or names of candidates to process."
+        "Wizard agent will store all matching candidates into the firestore wizard collection."
+        "Interview_agent will conduct interviews with the selected candidates and ask them questions based on the requirements provided by the user."
+        "Candidate_notification_agent will notify the candidates about the interview results and next steps."
+    ),
     sub_agents=[
         initialization_team,
         data_retriever_team,
@@ -309,8 +311,8 @@ orchestrator = SequentialAgent(
         # compliance_agent,
         # salary_agent,
         # candidate_notification_agent,
-        # documentation_agent
-    ]
+        # documentation_agent,
+    ],
 )
 
 root_agent = orchestrator
