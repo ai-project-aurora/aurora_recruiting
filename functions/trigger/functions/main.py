@@ -9,144 +9,94 @@ from firebase_functions.firestore_fn import (
 from google import auth as google_auth
 from google.auth.transport import requests as google_requests
 
-import requests
-import json
+# import requests
+# import json
+import pprint
 
+import vertexai
 from vertexai import agent_engines
 
 project_id = "hacker2025-team-182-dev"
-agent_engine_resource_id = "3571917454458224640"
-agent_engine_resource_location = "europe-west3"
+agent_engine_resource_id = "9130379741423992832"
+agent_engine_resource_location = "europe-west1"
+agent_engine_app_name = "Aurora Recruiting Agent"
+agent_engine_bucket_name = "project-aurora-dev-bucket"
 
-base_url = f"https://{agent_engine_resource_location}-aiplatform.googleapis.com/v1/projects/{project_id}/locations/{agent_engine_resource_location}/reasoningEngines/{agent_engine_resource_id}"
-
-
-def get_identity_token():
-    credentials, _ = google_auth.default()
-    auth_request = google_requests.Request()
-    credentials.refresh(auth_request)
-
-    return credentials.token
+reasoning_engine_resource_id = f"projects/{project_id}/locations/{agent_engine_resource_location}/reasoningEngines/{agent_engine_resource_id}"
+base_url = f"https://{agent_engine_resource_location}-aiplatform.googleapis.com/v1/{reasoning_engine_resource_id}"
 
 
-@on_document_written(document="wizard/{auroraSessionId}", region="europe-west3")
+# def get_identity_token():
+#     credentials, _ = google_auth.default()
+#     auth_request = google_requests.Request()
+#     credentials.refresh(auth_request)
+
+#     return credentials.token
+
+
+@on_document_written(
+    document="wizard/{auroraSessionId}", region="europe-west1", memory=512
+)
 def onAuroraEvents(event: Event[Change[DocumentSnapshot]]) -> None:
     print(f"new file written: '{event.params["auroraSessionId"]}'")
     print(f"value: {event.data}")
+    # print(event.data)
+    # print(event.data.params)
 
-    auroraSessionId = event.params["auroraSessionId"]
-
-    # get_agent_info()
-    # create_session(auroraSessionId)
-    # get_session(auroraSessionId)
-    # stream_query(auroraSessionId)
-    stream_query(auroraSessionId)
+    processRequest(event.params["auroraSessionId"])
 
 
-def create_session(auroraSessionId: str):
-    print(f"create agent session: {auroraSessionId}")
+def processRequest(auroraSessionId):
+    print("Triggering agent engine...")
 
-    response = requests.post(
-        f"{base_url}:query",
-        headers={
-            "Content-Type": "application/json; charset=utf-8",
-            "Authorization": f"Bearer {get_identity_token()}",
-        },
-        data=json.dumps(
-            {
-                "class_method": "create_session",
-                "input": {"user_id": f"{auroraSessionId}"},
-            }
-        ),
+    vertexai.init(
+        project=project_id,
+        location=agent_engine_resource_location,
+        staging_bucket=f"gs://{agent_engine_bucket_name}",
     )
 
-    print(f"create session response: {response.status_code} {response.text}")
+    all_engines = agent_engines.list(filter=f'display_name="{agent_engine_app_name}"')
+    engine = next(all_engines)
+
+    print(f"Using agent engine app: {engine.display_name}")
+
+    stream_query(engine, auroraSessionId)
 
 
-def get_session(auroraSessionId: str):
-    print(f"list agent sessions")
+def stream_query(engine, auroraSessionId):
+    print(f"stream query for session: {auroraSessionId}")
 
-    response = requests.post(
-        f"{base_url}:query",
-        headers={
-            "Content-Type": "application/json; charset=utf-8",
-            "Authorization": f"Bearer {get_identity_token()}",
-        },
-        data=json.dumps(
-            {
-                "class_method": "list_sessions",
-                "input": {"user_id": f"{auroraSessionId}"},
-            }
-        ),
-    )
-
-    print(f"list agent response: {response.status_code} {response.text}")
-
-
-def create_session(auroraSessionId: str):
-    print(f"create agent session: {auroraSessionId}")
-
-    response = requests.post(
-        f"{base_url}:query",
-        headers={
-            "Content-Type": "application/json; charset=utf-8",
-            "Authorization": f"Bearer {get_identity_token()}",
-        },
-        data=json.dumps(
-            {
-                "class_method": "create_session",
-                "input": {"user_id": f"{auroraSessionId}"},
-            }
-        ),
-    )
-
-    print(f"create session response: {response.status_code} {response.text}")
-
-
-# def stream_query(auroraSessionId: str):
-#     print(f"create agent session: {auroraSessionId}")
-
-#     response = requests.post(
-#         f"{base_url}:streamQuery",
-#         headers={
-#             "Content-Type": "application/json; charset=utf-8",
-#             "Authorization": f"Bearer {get_identity_token()}",
-#         },
-#         data=json.dumps(
-#             {
-#                 "class_method": "stream_query",
-#                 "input": {
-#                     "user_id": f"{auroraSessionId}",
-#                     "session_id": f"{auroraSessionId}",
-#                     "message": "What is the exchange rate from US dollars to SEK today?",
-#                 },
-#             }
-#         ),
-#         # stream=True,
-#     )
-
-#     print(f"query response: {response.status_code} {response.text}")
-
-
-def stream_query(auroraSessionId: str):
-    adk_app = agent_engines.get(
-        f"projects/{project_id}/locations/{agent_engine_resource_location}/reasoningEngines/{agent_engine_resource_id}"
-    )
-    for event in adk_app.stream_query(
+    events = engine.stream_query(
         user_id=f"{auroraSessionId}",
         # session_id=f"{auroraSessionId}",  # Optional
-        message="What is the exchange rate from US dollars to SEK today?",
-    ):
-        print(event)
-
-
-def get_agent_info():
-    response = requests.get(
-        f"{base_url}",
-        headers={
-            "Content-Type": "application/json; charset=utf-8",
-            "Authorization": f"Bearer {get_identity_token()}",
-        },
+        message=f"There is a new request in firestore in 'wizard/{auroraSessionId}'. Please process it.",
     )
 
-    print(f"response: {response.status_code} {response.text}")
+    for event in events:
+        print(f"event: {event}")
+
+    # max_events = 3
+    # for i in range(max_events):
+    #     try:
+    #         event = next(events)
+    #         print(f"event: {event}")
+    #     except StopIteration:
+    #         print("No more events.")
+    #         break
+
+    # for event in engine.stream_query(
+    #     user_id=f"{auroraSessionId}",
+    #     # session_id=f"{auroraSessionId}",  # Optional
+    #     message="There is a new request in firestore in 'wizard/{auroraSessionId}'. Please process it.",
+    # ):
+    #     print(f"event: {event}")
+
+
+# main is only used for local debugging
+def main():
+    print("starting function code in local debug mode")
+    processRequest("debug")
+
+
+if __name__ == "__main__":
+    main()
