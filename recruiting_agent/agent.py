@@ -30,6 +30,56 @@ vertexai_search_tool = VertexAiSearchTool(
 vertexai_search_tool2 = VertexAiSearchTool(data_store_id=datastorePath+"aurora-dataset02-unstructured_1750258103806")
 vertexai_search_tool3 = VertexAiSearchTool(data_store_id=datastorePath+"aurora-dataset03-unstructured_1750258161445")
 
+datastore_agent1 = Agent(
+    # A unique name for the agent.
+    name="datastore_agent",
+    # The Large Language Model (LLM) that agent will use.
+    model=model_name,
+    # A short description of the agent's purpose, so other agents
+    # in a multi-agent system know when to call it.
+    description="Use vertexai_search_tool available for you  to access the datastore containing the candidates CVs. ",
+    # Instructions to set the agent's behavior.
+    instruction=DATASTORE_PROMPT,
+    # Callbacks to log the request to the agent and its response.
+    before_model_callback=log_query_to_model,
+    after_model_callback=log_model_response,
+
+    tools=[vertexai_search_tool],
+)
+
+datastore_agent2 = Agent(
+    # A unique name for the agent.
+    name="datastore_agent2",
+    # The Large Language Model (LLM) that agent will use.
+    model=model_name,
+    # A short description of the agent's purpose, so other agents
+    # in a multi-agent system know when to call it.
+    description="Use vertexai_search_tool available for you  to access the datastore containing the candidates CVs. ",
+    # Instructions to set the agent's behavior.
+    instruction=DATASTORE_PROMPT,
+    # Callbacks to log the request to the agent and its response.
+    before_model_callback=log_query_to_model,
+    after_model_callback=log_model_response,
+
+    tools=[vertexai_search_tool2],
+)
+
+datastore_agent3 = Agent(
+    # A unique name for the agent.
+    name="datastore_agent3",
+    # The Large Language Model (LLM) that agent will use.
+    model=model_name,
+    # A short description of the agent's purpose, so other agents
+    # in a multi-agent system know when to call it.
+    description="Use vertexai_search_tool available for you  to access the datastore containing the candidates CVs. ",
+    # Instructions to set the agent's behavior.
+    instruction=DATASTORE_PROMPT,
+    # Callbacks to log the request to the agent and its response.
+    before_model_callback=log_query_to_model,
+    after_model_callback=log_model_response,
+    tools=[vertexai_search_tool],
+)
+
 skill_extractor = Agent(
     # A unique name for the agent.
     name="skill_extractor",
@@ -37,55 +87,14 @@ skill_extractor = Agent(
     model=model_name,
     # A short description of the agent's purpose, so other agents
     # in a multi-agent system know when to call it.
-    description="Use vertexai_search_tool available for you  to access the datastore containing the candidates CVs. Extract skills for each candidate from the candidate's CV using datastore",
+    description="Extract skills for each candidate from the candidate's CV using datastore",
     # Instructions to set the agent's behavior.
     instruction=SKILL_EXTRACTOR_PROMPT,
     # Callbacks to log the request to the agent and its response.
     before_model_callback=log_query_to_model,
     after_model_callback=log_model_response,
-    # Add the vertexai_search_tool tool to perform search on your data.
-    tools=[vertexai_search_tool],
 )
-skill_extractor2 = Agent(
-    # A unique name for the agent.
-    name="skill_extractor2",
-    # The Large Language Model (LLM) that agent will use.
-    model=model_name,
-    # A short description of the agent's purpose, so other agents
-    # in a multi-agent system know when to call it.
-    description="Use vertexai_search_tool available for you  to access the datastore containing the candidates CVs. Extract skills for each candidate from the candidate's CV using datastore",
-    # Instructions to set the agent's behavior.
-    instruction=SKILL_EXTRACTOR_PROMPT,
-    # Callbacks to log the request to the agent and its response.
-    before_model_callback=log_query_to_model,
-    after_model_callback=log_model_response,
-    # Add the vertexai_search_tool tool to perform search on your data.
-    tools=[vertexai_search_tool2],
-)
-skill_extractor3= Agent(
-    # A unique name for the agent.
-    name="skill_extractor3",
-    # The Large Language Model (LLM) that agent will use.
-    model=model_name,
-    # A short description of the agent's purpose, so other agents
-    # in a multi-agent system know when to call it.
-    description="Use vertexai_search_tool available for you  to access the datastore containing the candidates CVs. Extract skills for each candidate from the candidate's CV using datastore",
-    # Instructions to set the agent's behavior.
-    instruction=SKILL_EXTRACTOR_PROMPT,
-    # Callbacks to log the request to the agent and its response.
-    before_model_callback=log_query_to_model,
-    after_model_callback=log_model_response,
-    # Add the vertexai_search_tool tool to perform search on your data.
-    tools=[vertexai_search_tool3],
-)
-skill_extractor_team = ParallelAgent(
-    name="skill_extractor_team",
-    sub_agents=[
-        skill_extractor,
-        skill_extractor2,
-        skill_extractor3
-    ]
-)
+
 initialization_agent = Agent(
     name="initialization_agent",
     model=model_name,
@@ -106,6 +115,15 @@ user_uploads_agent = Agent(
     tools=[read_from_gcs]
 )
 
+data_retriever_team = ParallelAgent(
+    name="data_retriever_team",
+    sub_agents=[
+        datastore_agent1,
+        datastore_agent2,
+        datastore_agent3,
+        user_uploads_agent
+    ]
+)
 
 candidate_agent = Agent(
     # A unique name for the agent.
@@ -239,6 +257,14 @@ requirements_agent = Agent(
     tools=[google_search]
 )
 
+initialization_team = ParallelAgent(
+    name="initialization_team",
+    sub_agents = [
+        initialization_agent,
+        requirements_agent
+    ]
+)
+
 documentation_agent = Agent(
     name="documentation_agent",
     model=model_name,
@@ -273,10 +299,9 @@ orchestrator = SequentialAgent(
         'Interview_agent will conduct interviews with the selected candidates and ask them questions based on the requirements provided by the user.'
         'Candidate_notification_agent will notify the candidates about the interview results and next steps.'),
     sub_agents=[
-        initialization_agent,
-        user_uploads_agent,
-        requirements_agent,
-        skill_extractor_team,
+        initialization_team,
+        data_retriever_team,
+        skill_extractor,
         candidate_agent,
         candidate_selector_agent,
         wizard_agent,
