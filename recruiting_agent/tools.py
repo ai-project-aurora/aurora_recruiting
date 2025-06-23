@@ -11,8 +11,8 @@ from google.cloud import firestore, storage
 
 load_dotenv()
 deploy=os.getenv("DEPLOY", 'False')
-from google.adk.tools.crewai_tool import CrewaiTool
-from crewai_tools import FileWriterTool
+# from google.adk.tools.crewai_tool import CrewaiTool
+# from crewai_tools import FileWriterTool
 
 def save_to_state(
         tool_context: ToolContext,
@@ -64,18 +64,18 @@ def store_candidate(candidate_id:str, data: dict) -> dict[str, str]:
         print(f"Error storing candidate {candidate_id} data: {e}")
         return {"status": "error"}
 
-def write_to_file(file_name):
-        return CrewaiTool(
-            name=file_name,
-            description=(
-                "Writes a file to disk when run with a"
-                "filename, content, overwrite set to 'true',"
-                "and an optional directory"
-            ),
-            tool=FileWriterTool()
-        )
-
-
+# def write_to_file(file_name):
+#         return CrewaiTool(
+#             name=file_name,
+#             description=(
+#                 "Writes a file to disk when run with a"
+#                 "filename, content, overwrite set to 'true',"
+#                 "and an optional directory"
+#             ),
+#             tool=FileWriterTool()
+#         )
+#
+#
 
 
 def log_query_to_model(callback_context: CallbackContext, llm_request: LlmRequest):

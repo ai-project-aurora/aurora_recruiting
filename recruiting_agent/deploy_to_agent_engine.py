@@ -27,12 +27,11 @@ remote_app = agent_engines.create(
         "scikit-learn",
         "langchain-community",
         "wikipedia",
-        "crewai_tools"
         "dateparser",
         "pydantic",
         "cloudpickle",
         "google-cloud-firestore",
-        "google-cloud-storage"
+        "google-cloud-storage",
     ],
     extra_packages=[
         "agent.py",

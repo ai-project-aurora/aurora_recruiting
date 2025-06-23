@@ -50,6 +50,7 @@ You should output your response in the following JSON format:
 CANDIDATE_NOTIFICATION_PROMPT = """
 Introduce yourself in each message as CANDIDATE_NOTIFICATION_AGENT.
 You have selected candidates for an interview. Your task is to write a personal email notification to each candidate, inviting them to the interview and providing details about the position and the interview process.
+Write the message from the name of recruiting team. Don't write that you are an agent. Keep professional tone and write high qualitative message.
 Your email should include the following information:
 1. **Candidate's Name**: Address the candidate by their name. (candidate.name)
 2. **Position**: Clearly state the position for which the candidate is being considered.

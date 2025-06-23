@@ -1,3 +1,11 @@
+import string
+
+from random import random
+
+import uuid
+
+from uuid import UUID
+
 import os
 from dotenv import load_dotenv
 import logging
@@ -11,14 +19,16 @@ from vertexai import agent_engines
 load_dotenv()
 project_id = os.environ["GOOGLE_CLOUD_PROJECT"]
 location = os.environ["GOOGLE_CLOUD_LOCATION"]
-app_name = os.environ.get("APP_NAME", "Transcript Summarizer")
-bucket_name = f"gs://{project_id}-bucket"
+bucket = os.environ.get('"GOOGLE_CLOUD_BUCKET"')
+app_name = os.environ.get("APP_NAME", "Aurora Recruiting Agent")
+bucket_name = f"gs://{bucket}"
 
 # Initialize Google Cloud Logging with the correct project ID
 cloud_logging_client = google.cloud.logging.Client(project=project_id)
-handler = CloudLoggingHandler(cloud_logging_client, name="Recruiting Agent App")
+handler = CloudLoggingHandler(cloud_logging_client, name="AuroraRecruitingAgent")
 logging.getLogger().setLevel(logging.INFO)
 logging.getLogger().addHandler(handler)
+my_user_id = "123456"
 
 # Initialize Vertex AI with the correct project and location
 vertexai.init(
@@ -34,19 +44,22 @@ remote_app = next(ae_apps)
 logging.info(f"Using remote app: {remote_app.display_name}")
 
 # Get a session for the remote app
-remote_session = remote_app.create_session(user_id="u_456")
+remote_session = remote_app.create_session(user_id=my_user_id)
 
-transcript_to_summarize = """
+messageRequest = """
       Virtual Agent: Hi, I'm a recruiting agent. How can I help you today?
       User: I'm looking for a mechanical engineer.
       Virtual Agent: I will search the requirements for a mechanical engineer.
+                              I will access the datastore to check the matching candidates.
+                              I will extract the skills and evaluate the candidates.
+                              I will store the information in cloud storage and firestore.
 """
 
 # Run the agent with this hard-coded input
 events = remote_app.stream_query(
-    user_id="u_456",
+    user_id=my_user_id,
     session_id=remote_session["id"],
-    message=transcript_to_summarize,
+    message=messageRequest,
 )
 
 # Print responses
