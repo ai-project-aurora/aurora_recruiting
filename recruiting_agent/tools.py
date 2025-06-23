@@ -1,3 +1,5 @@
+import io
+
 import logging
 import google.cloud.logging
 import os
@@ -8,9 +10,11 @@ from typing import List
 from google.adk.tools.tool_context import ToolContext
 from dotenv import load_dotenv
 from google.cloud import firestore, storage
+from PyPDF2 import PdfReader
 
 load_dotenv()
 deploy=os.getenv("DEPLOY", 'False')
+project = os.getenv("GOOGLE_CLOUD_PROJECT")
 # from google.adk.tools.crewai_tool import CrewaiTool
 # from crewai_tools import FileWriterTool
 
@@ -34,6 +38,31 @@ def save_to_state(
 # Initialize Firestore client
 db = firestore.Client()
 
+def read_from_gcs(session_id: str) -> dict:
+    """
+    Lists the content of all files in the specified GCS bucket.
+    :return: Dictionary mapping file names to their contents.
+    """
+    inputBucketName = os.getenv("INPUT_BUCKET_NAME")
+    print("preparing read from bucket: " + inputBucketName + " using session id: " + session_id)
+    bucket_name = f"{project}.firebasestorage.app"
+    prefix = f"user-uploads/{session_id}"
+    print("read from bucket: " + bucket_name )
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    contents = {}
+    for blob in bucket.list_blobs(prefix=prefix):
+        try:
+            pdf_bytes = blob.download_as_bytes()
+            reader = PdfReader(io.BytesIO(pdf_bytes))
+            text = ""
+            for page in reader.pages:
+                text += page.extract_text() or ""
+            contents[blob.name] = text
+        except Exception as e:
+            contents[blob.name] = f"Error reading file: {e}"
+    return contents
+
 def upload_to_gcs(file_name: str, data: str) -> dict[str, str]:
     """
     Uploads candidate data to gcs.
@@ -53,6 +82,18 @@ def upload_to_gcs(file_name: str, data: str) -> dict[str, str]:
         return {"status": "error", "message": str(e)}
 
 def store_candidate(candidate_id:str, data: dict) -> dict[str, str]:
+    # Reference to the collection and document
+    try:
+        doc_ref = db.collection('output').document(candidate_id)
+        # Set data in Firestore
+        doc_ref.set(data)
+        print(f"Candidate {candidate_id} data stored.")
+        return {"status": "success " + candidate_id}
+    except Exception as e:
+        print(f"Error storing candidate {candidate_id} data: {e}")
+        return {"status": "error"}
+
+def store_wizard(candidate_id:str, data: dict) -> dict[str, str]:
     # Reference to the collection and document
     try:
         doc_ref = db.collection('wizard').document(candidate_id)

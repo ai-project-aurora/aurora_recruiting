@@ -32,6 +32,7 @@ remote_app = agent_engines.create(
         "cloudpickle",
         "google-cloud-firestore",
         "google-cloud-storage",
+        "PyPDF2"
     ],
     extra_packages=[
         "agent.py",

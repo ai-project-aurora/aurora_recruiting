@@ -7,3 +7,4 @@ google-cloud-aiplatform[adk,agent_engines]
 deprecated
 google-cloud-firestore
 google-cloud-storage
+PyPDF2

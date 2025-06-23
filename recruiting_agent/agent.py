@@ -86,6 +86,26 @@ skill_extractor_team = ParallelAgent(
         skill_extractor3
     ]
 )
+initialization_agent = Agent(
+    name="initialization_agent",
+    model=model_name,
+    description="Store request document in the firestore using store_wizard.",
+    instruction=INIT_AGENT_PROMPT,
+    before_model_callback=log_query_to_model,
+    after_model_callback=log_model_response,
+    tools=[store_wizard]
+)
+
+user_uploads_agent = Agent(
+    name="user_uploads_agent",
+    model=model_name,
+    description="Get user uploads if requested.",
+    instruction=USER_UPLOADS_AGENT_PROMPT,
+    before_model_callback=log_query_to_model,
+    after_model_callback=log_model_response,
+    tools=[read_from_gcs]
+)
+
 
 candidate_agent = Agent(
     # A unique name for the agent.
@@ -229,6 +249,16 @@ documentation_agent = Agent(
     tools=[store_candidate]
 )
 
+wizard_agent = Agent(
+    name="wizard_agent",
+    model=model_name,
+    description="Use the information provided by the previous agents to store the data in a structured format in the firestore using the Firestore tool.",
+    instruction=WIZARD_AGENT_PROMPT,
+    before_model_callback=log_query_to_model,
+    after_model_callback=log_model_response,
+    tools=[store_wizard]
+)
+
 orchestrator = SequentialAgent(
     name='orchestrator',
     description=(
@@ -239,18 +269,22 @@ orchestrator = SequentialAgent(
         ' Skill_extractor will use datastore to extract skills from the cvs of candidates.'
         'Candidate_agent will analyze the skills and qualifications of candidates based on the requirements provided by the user and select the best candidates.'
         'Candidate_selector_agent will list top candidates ordered by their score and ask the user the number or names of candidates to process.'
+        'Wizard agent will store all matching candidates into the firestore wizard collection.'
         'Interview_agent will conduct interviews with the selected candidates and ask them questions based on the requirements provided by the user.'
         'Candidate_notification_agent will notify the candidates about the interview results and next steps.'),
     sub_agents=[
+        initialization_agent,
+        user_uploads_agent,
         requirements_agent,
         skill_extractor_team,
         candidate_agent,
         candidate_selector_agent,
-        interview_agent,
-        compliance_agent,
-        salary_agent,
-        candidate_notification_agent,
-        documentation_agent
+        wizard_agent,
+        # interview_agent,
+        # compliance_agent,
+        # salary_agent,
+        # candidate_notification_agent,
+        # documentation_agent
     ]
 )
 
