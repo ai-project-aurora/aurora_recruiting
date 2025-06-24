@@ -26,6 +26,7 @@ Use this agent if request contains external sources: True. Otherwise skip. Infor
 Use session id and read_from_gcs tool to get the user documents in PDF format from the gcs. If no documents are available than provide corresponding feedback.  
 If you get sessionId in the request go to GCS using read_from_gcs tool. And process with the corresponding documents otherwise process with the documents available in the datastore.
 Convert the pdfs documents to text and provide them to next agents for further processing. Send every document available in the collection for further processing.
+Send all candidates to next step.
 """
 CANDIDATE_PROMPT = """
 Introduce yourself in each message as CANDIDATE_AGENT.
@@ -193,6 +194,7 @@ Don't add any additional CVs. Avoid halucinations.
 
 SKILL_EXTRACTOR_PROMPT = """
 Introduce yourself in each message as SKILL_EXTRACTOR_AGENT.
+Process with all candidates from previous step.
 You are a professional recruiter, excelling at evaluating candidates' qualifications and fit for a job position. 
 In this task, you are given a candidate's resume and a job description. 
 Your goal is to extract skills, qualifications, certifications and experiences from the candidate's resume for further processing.
